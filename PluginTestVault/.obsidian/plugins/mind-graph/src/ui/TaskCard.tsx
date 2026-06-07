@@ -1,0 +1,50 @@
+import React from 'react';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { Task } from '../types';
+
+interface TaskCardProps {
+	task: Task;
+	index: number;
+	onDone: (task: Task) => void;
+	onDelete: (task: Task) => void;
+	onEdit: (task: Task) => void;
+}
+
+export function TaskCard({ task, onDone, onDelete, onEdit }: TaskCardProps) {
+	const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
+		useSortable({ id: task.id });
+
+	const style = {
+		transform: CSS.Transform.toString(transform),
+		transition,
+	};
+
+	return (
+		<div
+			ref={setNodeRef}
+			style={style}
+			className={`mg-task-card${isDragging ? ' mg-task-card--dragging' : ''}`}
+			onDoubleClick={() => onEdit(task)}
+		>
+			<div className="mg-task-card__handle" {...attributes} {...listeners}>
+				≡
+			</div>
+			<div className="mg-task-card__title">{task.title}</div>
+			<div className="mg-task-card__actions">
+				<button
+					onClick={e => { e.stopPropagation(); onDone(task); }}
+					onDoubleClick={e => e.stopPropagation()}
+					aria-label="Mark done"
+					className="mg-btn-done"
+				>✓</button>
+				<button
+					onClick={e => { e.stopPropagation(); onDelete(task); }}
+					onDoubleClick={e => e.stopPropagation()}
+					aria-label="Delete"
+					className="mg-btn-delete"
+				>✕</button>
+			</div>
+		</div>
+	);
+}

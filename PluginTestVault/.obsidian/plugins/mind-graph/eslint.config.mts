@@ -30,4 +30,9 @@ export default tseslint.config(
 		},
 	},
 	...obsidianmd.configs.recommended,
+	{
+		rules: {
+			'obsidianmd/no-unsupported-api': ['error', { minAppVersion: '1.7.2' }],
+		},
+	},
 );

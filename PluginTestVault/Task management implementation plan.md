@@ -41,6 +41,9 @@
 	- Unordered list of un prioritized tasks, View of which is shown in an individual project page
 	- Queue editor can handle adding and removing from backlog in to queue
 
+#### Refactors
+- right now the queue reads information out of data.json. This could get unwieldy with having to update many queues. Before doing anything else we should refactor our queue to either use its own json file per queue or to instead use a markdown file to store queue information, making it obsidian native.
+
 #### User Interactions
 - Add task now has the option of automatically adding to back of a projects queue or adding to general backlog
 

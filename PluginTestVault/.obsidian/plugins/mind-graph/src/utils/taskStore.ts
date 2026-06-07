@@ -20,12 +20,20 @@ export class TaskStore {
 		}
 	}
 
-	async createTask(title: string): Promise<Task> {
+	// Creates vault file only — does NOT modify the queue.
+	// id and filePath on the template are ignored; new ones are generated.
+	async createTaskFile(template: Task): Promise<Task> {
 		const id = generateId();
-		const filePath = this.resolveFilePath(title);
-		const task: Task = {
-			id,
-			filePath,
+		const filePath = `${TASKS_FOLDER}/${id}.md`;
+		const task: Task = { ...template, id, filePath };
+		await this.app.vault.create(filePath, serializeTask(task));
+		return task;
+	}
+
+	async createAndAppendTask(title: string): Promise<Task> {
+		const task = await this.createTaskFile({
+			id: '',
+			filePath: '',
 			title,
 			description: '',
 			completionCriteria: '',
@@ -34,9 +42,8 @@ export class TaskStore {
 			contextType: null,
 			dependencies: [],
 			project: null,
-		};
-		await this.app.vault.create(filePath, serializeTask(task));
-		await this.queueStore.append(id);
+		});
+		await this.queueStore.append(task.id);
 		return task;
 	}
 
@@ -80,15 +87,5 @@ export class TaskStore {
 		return order
 			.map(id => byId.get(id))
 			.filter((t): t is Task => t !== undefined && !t.completed);
-	}
-
-	private resolveFilePath(title: string): string {
-		const safe = title.replace(/[\\/:*?"<>|]/g, '-').trim() || 'untitled';
-		let path = `${TASKS_FOLDER}/${safe}.md`;
-		let n = 2;
-		while (this.app.vault.getAbstractFileByPath(path)) {
-			path = `${TASKS_FOLDER}/${safe}-${n++}.md`;
-		}
-		return path;
 	}
 }

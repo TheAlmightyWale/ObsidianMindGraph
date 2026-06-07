@@ -2,7 +2,7 @@
 	"id": "mind-graph",
 	"name": "MindGraph",
 	"version": "1.0.1",
-	"minAppVersion": "1.4.0",
+	"minAppVersion": "1.7.2",
 	"description": "AI-powered semantic note organization and task management for Obsidian.",
 	"author": "Jarryd",
 	"isDesktopOnly": true

@@ -58,6 +58,13 @@ export class QueueOrderStore {
 		await this.saveFn(this.data);
 	}
 
+	async insertAt(taskId: string, index: number): Promise<void> {
+		const order = [...this.data.queue.queueOrder];
+		order.splice(Math.min(index, order.length), 0, taskId);
+		this.data.queue.queueOrder = order;
+		await this.saveFn(this.data);
+	}
+
 	async move(fromIndex: number, toIndex: number): Promise<void> {
 		const order = [...this.data.queue.queueOrder];
 		const removed = order.splice(fromIndex, 1);
