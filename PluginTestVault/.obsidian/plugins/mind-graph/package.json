@@ -1,6 +1,6 @@
 {
 	"name": "obsidian-mind-graph",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "AI-powered semantic note organization and task management for Obsidian.",
 	"main": "main.js",
 	"type": "module",
