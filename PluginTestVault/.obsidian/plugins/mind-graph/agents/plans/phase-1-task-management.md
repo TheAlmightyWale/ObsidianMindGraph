@@ -10,7 +10,7 @@ Phase 1 establishes the foundational task management system: a workspace-tab que
 
 | Decision | Choice | Rationale |
 |---|---|---|
-| Task storage | Markdown files under `.mind-graph/Tasks/` | Native Obsidian format; reserved namespace keeps plugin files out of user notes |
+| Task storage | Markdown files under `mind-graph/Tasks/` | Native Obsidian format; reserved namespace keeps plugin files out of user notes |
 | Queue ordering | Plugin data (`data.json`) | Decoupled from file content; avoids re-writing every .md on reorder |
 | Queue panel location | Workspace tab | Full screen real estate; opened via command/ribbon |
 | Task editor | Modal dialog | Simplest for Phase 1; avoids tab sprawl |
@@ -88,7 +88,7 @@ onClose() {
 ```ts
 export interface Task {
   id: string;                    // UUID, never changes
-  filePath: string;              // vault-relative path, e.g. ".mind-graph/Tasks/my-task.md"
+  filePath: string;              // vault-relative path, e.g. "mind-graph/Tasks/my-task.md"
   title: string;                 // first H1 heading in the file body
   description: string;           // markdown body after the heading
   completionCriteria: string;    // frontmatter field
@@ -112,12 +112,12 @@ export interface MindGraphData {
 
 ### 2.2 Markdown file format
 
-Each task is a single `.md` file under `.mind-graph/Tasks/`. The `.mind-graph/` directory is the plugin's reserved namespace in the vault — all plugin-managed files live here, organised by subfolder. Users are not expected to edit these files directly.
+Each task is a single `.md` file under `mind-graph/Tasks/`. The `mind-graph/` directory is the plugin's reserved namespace in the vault — all plugin-managed files live here, organised by subfolder. Users are not expected to edit these files directly.
 
 | Path | Contents |
 |---|---|
-| `.mind-graph/Tasks/` | One `.md` file per task |
-| `.mind-graph/` (future phases) | Projects, contexts, change queue, etc. |
+| `mind-graph/Tasks/` | One `.md` file per task |
+| `mind-graph/` (future phases) | Projects, contexts, change queue, etc. |
 
 ```markdown
 ---
@@ -151,7 +151,7 @@ All vault operations go through this module. It uses Obsidian's `app.vault` and 
 class TaskStore {
   constructor(private app: App, private plugin: MindGraphPlugin) {}
 
-  // Ensure .mind-graph/Tasks/ exists (called once on plugin load)
+  // Ensure mind-graph/Tasks/ exists (called once on plugin load)
   async ensureFolder(): Promise<void>
 
   // Create a new task file and add it to the queue
@@ -227,11 +227,11 @@ function serializeTask(task: Task): string {
 
 ## 4. Settings (`src/settings.ts`)
 
-The tasks folder is a **plugin constant**, not a user setting. Because `.mind-graph/` is the plugin's reserved namespace, there is no reason to expose this path to users. Define it as a constant in a shared location:
+The tasks folder is a **plugin constant**, not a user setting. Because `mind-graph/` is the plugin's reserved namespace, there is no reason to expose this path to users. Define it as a constant in a shared location:
 
 ```ts
 // src/utils/constants.ts
-export const MIND_GRAPH_ROOT = '.mind-graph';
+export const MIND_GRAPH_ROOT = 'mind-graph';
 export const TASKS_FOLDER    = `${MIND_GRAPH_ROOT}/Tasks`;
 ```
 
@@ -547,7 +547,7 @@ src/
 1. `npm run dev`
 2. Reload plugin in Obsidian.
 3. Open Task Queue via ribbon/command.
-4. Add a task — verify `.md` file appears in vault under `.mind-graph/Tasks/`.
+4. Add a task — verify `.md` file appears in vault under `mind-graph/Tasks/`.
 5. Edit the task — verify frontmatter and body update.
 6. Drag to reorder — verify order persists after panel close/reopen.
 7. Mark done — verify undo toast; verify task leaves queue.

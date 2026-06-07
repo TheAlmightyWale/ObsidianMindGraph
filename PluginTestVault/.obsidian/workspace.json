@@ -36,20 +36,6 @@
             }
           },
           {
-            "id": "8271659fe0d15bbe",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Task management implementation plan.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "Task management implementation plan"
-            }
-          },
-          {
             "id": "b304e3434cae3ed3",
             "type": "leaf",
             "state": {
@@ -64,21 +50,17 @@
             }
           },
           {
-            "id": "cd363868085b8678",
+            "id": "9067b435017ae715",
             "type": "leaf",
             "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Graph analyses Requirements.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "Graph analyses Requirements"
+              "type": "mind-graph-task-queue",
+              "state": {},
+              "icon": "list-checks",
+              "title": "Task queue"
             }
           }
         ],
-        "currentTab": 4
+        "currentTab": 3
       }
     ],
     "direction": "vertical"
@@ -228,29 +210,35 @@
   },
   "left-ribbon": {
     "hiddenItems": {
+      "mind-graph:Task queue": false,
       "switcher:Open quick switcher": false,
       "graph:Open graph view": false,
       "canvas:Create new canvas": false,
       "daily-notes:Open today's daily note": false,
       "templates:Insert template": false,
       "command-palette:Open command palette": false,
-      "bases:Create new base": false,
-      "mind-graph:Task queue": false
+      "bases:Create new base": false
     }
   },
-  "active": "cd363868085b8678",
+  "active": "9067b435017ae715",
   "lastOpenFiles": [
-    "mind-graph/Tasks/3353eb93-493f-4429-9160-2146aa61d20e.md",
-    "Graph analyses Requirements.md",
-    "mind-graph/Tasks/6b1a63d5-b9da-47f2-a20e-e8a768028b1a.md",
+    "mind-graph/Tasks/db1abe58-f72d-468d-a61a-c513a0bd0f21.md",
+    "mind-graph/Tasks/3d8db3fa-4bf2-4a2d-8a72-b3c03549ca5c.md",
+    "mind-graph/Tasks/9c10e82f-4d33-40d6-9b7a-bd6b5e5c1c96.md",
+    "mind-graph/Tasks/d79ddf12-fad9-492c-b438-00cda1ebb755.md",
+    "mind-graph/Tasks/09eadb84-b076-4369-b90d-342a6311478b.md",
+    "mind-graph/Tasks/baf7ffe6-df48-4f15-83a0-fb5ccc299f5a.md",
     "mind-graph/Tasks",
     "mind-graph",
-    "Untitled.base",
     "Untitled 1.base",
+    "Task management implementation plan.md",
+    "Untitled.base",
+    "Graph analyses Requirements.md",
+    "mind-graph/Tasks/3353eb93-493f-4429-9160-2146aa61d20e.md",
+    "mind-graph/Tasks/6b1a63d5-b9da-47f2-a20e-e8a768028b1a.md",
     "Data Storage.md",
     "Task Requirements.md",
     "Task queueing User flow.md",
-    "Task management implementation plan.md",
     "Agentic organization implementation plan.md",
     "Welcome.md"
   ]

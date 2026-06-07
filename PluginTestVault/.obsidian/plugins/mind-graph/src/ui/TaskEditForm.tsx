@@ -61,7 +61,7 @@ export function TaskEditForm({ task, onSave, onCancel }: TaskEditFormProps) {
 					rows={3}
 				/>
 			</div>
-			<div className="mg-field mg-field--disabled">
+			<div className="mg-field--disabled">
 				<label>
 					<input type="checkbox" disabled />
 					{' '}Can be automated (coming in a future phase)

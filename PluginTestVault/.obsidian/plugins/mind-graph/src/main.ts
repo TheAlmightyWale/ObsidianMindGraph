@@ -27,7 +27,10 @@ export default class MindGraphPlugin extends Plugin {
 		await this.queueStore.load();
 
 		this.taskStore = new TaskStore(this.app, this.queueStore);
-		await this.taskStore.ensureFolder();
+		this.app.workspace.onLayoutReady(() => {
+			void this.taskStore.ensureFolder();
+		});
+		//await this.taskStore.ensureFolder();
 
 		this.registerView(
 			VIEW_TYPE_TASK_QUEUE,
@@ -47,7 +50,7 @@ export default class MindGraphPlugin extends Plugin {
 		this.addSettingTab(new MindGraphSettingTab(this.app, this));
 	}
 
-	onunload() {}
+	onunload() { }
 
 	private async activateView(): Promise<void> {
 		const { workspace } = this.app;

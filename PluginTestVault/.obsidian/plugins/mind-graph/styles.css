@@ -6,3 +6,196 @@ available in the app when your plugin is enabled.
 If your plugin does not need CSS, delete this file.
 
 */
+
+/* ── Task Edit Form ── */
+.mg-task-edit-form {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	padding: 4px 0;
+}
+
+.mg-field {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+
+.mg-field label {
+	font-size: var(--font-ui-smaller);
+	color: var(--text-muted);
+	font-weight: var(--font-semibold);
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+}
+
+.mg-field input[type="text"],
+.mg-field textarea {
+	width: 100%;
+	box-sizing: border-box;
+}
+
+.mg-field--disabled label {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	color: var(--text-faint);
+	cursor: not-allowed;
+	font-size: var(--font-ui-small);
+}
+
+.mg-form-actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 8px;
+	padding-top: 4px;
+}
+
+/* ── Task Queue Panel ── */
+.mg-task-queue {
+	display: flex;
+	flex-direction: column;
+	padding: 16px;
+	box-sizing: border-box;
+}
+
+.mg-task-queue__header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 0 0 12px 0;
+	margin-bottom: 16px;
+	border-bottom: 1px solid var(--background-modifier-border);
+	flex-shrink: 0;
+}
+
+.mg-task-queue__header h4 {
+	margin: 0;
+	font-size: var(--font-ui-medium);
+	font-weight: var(--font-semibold);
+}
+
+.mg-queue-body {
+	border: 1px solid var(--background-modifier-border);
+	border-radius: var(--radius-m);
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+}
+
+.mg-task-queue__list {
+	display: flex;
+	flex-direction: row;
+	gap: 12px;
+	padding: 16px;
+	overflow-x: auto;
+	overflow-y: hidden;
+	flex: 1;
+	align-items: flex-start;
+}
+
+.mg-task-queue__list::-webkit-scrollbar {
+	height: 6px;
+}
+
+.mg-task-queue__list::-webkit-scrollbar-thumb {
+	background: var(--background-modifier-border);
+	border-radius: 3px;
+}
+
+/* ── Task Card ── */
+.mg-task-card {
+	display: flex;
+	flex-direction: column;
+	width: 180px;
+	min-width: 180px;
+	min-height: 140px;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: var(--radius-m);
+	background: var(--background-secondary);
+	cursor: pointer;
+	user-select: none;
+	box-sizing: border-box;
+	transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.mg-task-card:hover {
+	border-color: var(--interactive-accent);
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.mg-task-card--dragging {
+	opacity: 0.5;
+	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.mg-task-card__handle {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	padding: 6px 8px 4px;
+	color: var(--text-faint);
+	cursor: grab;
+	font-size: 12px;
+	letter-spacing: 2px;
+	border-bottom: 1px solid var(--background-modifier-border);
+	flex-shrink: 0;
+}
+
+.mg-task-card__handle:active {
+	cursor: grabbing;
+}
+
+.mg-task-card__title {
+	flex: 1;
+	padding: 10px 12px;
+	font-size: var(--font-ui-small);
+	line-height: 1.4;
+	overflow: hidden;
+	display: -webkit-box;
+	-webkit-line-clamp: 4;
+	-webkit-box-orient: vertical;
+	word-break: break-word;
+}
+
+.mg-task-card__actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 4px;
+	padding: 6px 8px;
+	border-top: 1px solid var(--background-modifier-border);
+	flex-shrink: 0;
+}
+
+.mg-task-card__actions button {
+	width: 26px;
+	height: 26px;
+	padding: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: var(--radius-s);
+	font-size: 13px;
+	cursor: pointer;
+	border: 1px solid transparent;
+	background: transparent;
+	color: var(--text-muted);
+	transition: background 0.12s ease, color 0.12s ease;
+}
+
+.mg-task-card__actions .mg-btn-done:hover {
+	background: var(--color-green);
+	color: white;
+	border-color: var(--color-green);
+}
+
+.mg-task-card__actions .mg-btn-delete:hover {
+	background: var(--color-red);
+	color: white;
+	border-color: var(--color-red);
+}
+
+.mg-queue-loading {
+	padding: 24px;
+	color: var(--text-muted);
+}

@@ -107,29 +107,31 @@ export function TaskQueuePanel({ app, taskStore, queueStore }: TaskQueuePanelPro
 				<h4>Task Queue</h4>
 				<button onClick={openAddModal} className="mod-cta">+ Add Task</button>
 			</div>
-			<DndContext
-				sensors={sensors}
-				collisionDetection={closestCenter}
-				onDragEnd={handleDragEnd}
-			>
-				<SortableContext
-					items={tasks.map(t => t.id)}
-					strategy={horizontalListSortingStrategy}
+			<div className="mg-queue-body">
+				<DndContext
+					sensors={sensors}
+					collisionDetection={closestCenter}
+					onDragEnd={handleDragEnd}
 				>
-					<div className="mg-task-queue__list">
-						{tasks.map((task, i) => (
-							<TaskCard
-								key={task.id}
-								task={task}
-								index={i}
-								onDone={t => void handleDone(t)}
-								onDelete={t => void handleDelete(t)}
-								onEdit={openEditModal}
-							/>
-						))}
-					</div>
-				</SortableContext>
-			</DndContext>
+					<SortableContext
+						items={tasks.map(t => t.id)}
+						strategy={horizontalListSortingStrategy}
+					>
+						<div className="mg-task-queue__list">
+							{tasks.map((task, i) => (
+								<TaskCard
+									key={task.id}
+									task={task}
+									index={i}
+									onDone={t => void handleDone(t)}
+									onDelete={t => void handleDelete(t)}
+									onEdit={openEditModal}
+								/>
+							))}
+						</div>
+					</SortableContext>
+				</DndContext>
+			</div>
 		</div>
 	);
 }

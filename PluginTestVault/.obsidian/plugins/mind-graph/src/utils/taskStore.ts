@@ -9,12 +9,13 @@ export class TaskStore {
 	constructor(
 		private app: App,
 		private queueStore: QueueOrderStore,
-	) {}
+	) { }
 
 	async ensureFolder(): Promise<void> {
 		if (!this.app.vault.getAbstractFileByPath(MIND_GRAPH_ROOT)) {
 			await this.app.vault.createFolder(MIND_GRAPH_ROOT);
 		}
+
 		if (!this.app.vault.getAbstractFileByPath(TASKS_FOLDER)) {
 			await this.app.vault.createFolder(TASKS_FOLDER);
 		}
