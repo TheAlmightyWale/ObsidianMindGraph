@@ -14,7 +14,8 @@ import {
 } from '@dnd-kit/sortable';
 import { App } from 'obsidian';
 import { Task } from '../types';
-import { QueueOrderStore } from '../utils/queueStore';
+import { DEFAULT_PROJECT_SLUG } from '../utils/constants';
+import { QueueFileStore } from '../utils/queueFileStore';
 import { TaskStore } from '../utils/taskStore';
 import { showUndoNotice } from '../utils/undoNotice';
 import { TaskCard } from './TaskCard';
@@ -23,24 +24,34 @@ import { TaskEditModal } from './TaskEditModal';
 interface TaskQueuePanelProps {
 	app: App;
 	taskStore: TaskStore;
-	queueStore: QueueOrderStore;
+	queueFileStore: QueueFileStore;
+	projectSlug?: string;
+	projectName?: string;        // display name shown in the header link (overview mode)
+	onProjectNameClick?: () => void; // when provided, name becomes a clickable link
 }
 
-export function TaskQueuePanel({ app, taskStore, queueStore }: TaskQueuePanelProps) {
+export function TaskQueuePanel({
+	app,
+	taskStore,
+	queueFileStore,
+	projectSlug = DEFAULT_PROJECT_SLUG,
+	projectName,
+	onProjectNameClick,
+}: TaskQueuePanelProps) {
 	const [tasks, setTasks] = useState<Task[]>([]);
 	const [loading, setLoading] = useState(true);
 
 	const sensors = useSensors(useSensor(PointerSensor));
 
 	useEffect(() => {
-		void taskStore.getQueue().then(queue => {
+		void taskStore.getQueue(projectSlug).then(queue => {
 			setTasks(queue);
 			setLoading(false);
 		});
-	}, []);
+	}, [projectSlug]);
 
 	function refreshQueue() {
-		void taskStore.getQueue().then(setTasks);
+		void taskStore.getQueue(projectSlug).then(setTasks);
 	}
 
 	function handleDragEnd(event: DragEndEvent) {
@@ -50,12 +61,12 @@ export function TaskQueuePanel({ app, taskStore, queueStore }: TaskQueuePanelPro
 		const newIndex = tasks.findIndex(t => t.id === String(over.id));
 		if (oldIndex === -1 || newIndex === -1) return;
 		setTasks(prev => arrayMove(prev, oldIndex, newIndex));
-		void queueStore.move(oldIndex, newIndex);
+		void queueFileStore.moveInQueue(projectSlug, oldIndex, newIndex);
 	}
 
 	function openAddModal() {
 		new TaskEditModal(app, null, async (t) => {
-			const created = await taskStore.createAndAppendTask(t.title);
+			const created = await taskStore.createTask(t.title, projectSlug, 'queue');
 			if (t.description || t.completionCriteria) {
 				await taskStore.updateTask({
 					...created,
@@ -76,11 +87,11 @@ export function TaskQueuePanel({ app, taskStore, queueStore }: TaskQueuePanelPro
 
 	async function handleDone(task: Task) {
 		await taskStore.updateTask({ ...task, completed: true });
-		await queueStore.markDone(task.id);
+		await queueFileStore.removeFromQueue(projectSlug, task.filePath);
 		setTasks(prev => prev.filter(t => t.id !== task.id));
 		showUndoNotice(`"${task.title}" marked as done.`, async () => {
 			await taskStore.updateTask({ ...task, completed: false });
-			await queueStore.markUndone(task.id);
+			await queueFileStore.appendToQueue(projectSlug, task.filePath);
 			refreshQueue();
 		});
 	}
@@ -92,7 +103,7 @@ export function TaskQueuePanel({ app, taskStore, queueStore }: TaskQueuePanelPro
 		setTasks(prev => prev.filter(t => t.id !== task.id));
 		showUndoNotice(`"${snapshot.title}" deleted.`, async () => {
 			const restored = await taskStore.createTaskFile(snapshot);
-			await queueStore.insertAt(restored.id, originalIndex);
+			await queueFileStore.insertInQueue(projectSlug, restored.filePath, originalIndex);
 			refreshQueue();
 		});
 	}
@@ -104,7 +115,11 @@ export function TaskQueuePanel({ app, taskStore, queueStore }: TaskQueuePanelPro
 	return (
 		<div className="mg-task-queue">
 			<div className="mg-task-queue__header">
-				<h4>Task Queue</h4>
+				{onProjectNameClick && (
+					<button className="mg-project-name-link" onClick={onProjectNameClick}>
+						{projectName ?? projectSlug}
+					</button>
+				)}
 				<button onClick={openAddModal} className="mod-cta">+ Add Task</button>
 			</div>
 			<div className="mg-queue-body">

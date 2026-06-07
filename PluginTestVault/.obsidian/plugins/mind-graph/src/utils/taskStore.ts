@@ -1,40 +1,26 @@
 import { App, TFile, TFolder } from 'obsidian';
 import { Task } from '../types';
-import { MIND_GRAPH_ROOT, TASKS_FOLDER } from './constants';
+import { PROJECTS_FOLDER, tasksFolder } from './constants';
 import { generateId } from './ids';
 import { deserializeTask, serializeTask } from './taskSerializer';
-import { QueueOrderStore } from './queueStore';
+import { QueueFileStore } from './queueFileStore';
 
 export class TaskStore {
 	constructor(
 		private app: App,
-		private queueStore: QueueOrderStore,
-	) { }
+		private queueFileStore: QueueFileStore,
+	) {}
 
-	async ensureFolder(): Promise<void> {
-		if (!this.app.vault.getAbstractFileByPath(MIND_GRAPH_ROOT)) {
-			await this.app.vault.createFolder(MIND_GRAPH_ROOT);
-		}
-
-		if (!this.app.vault.getAbstractFileByPath(TASKS_FOLDER)) {
-			await this.app.vault.createFolder(TASKS_FOLDER);
-		}
-	}
-
-	// Creates vault file only — does NOT modify the queue.
-	// id and filePath on the template are ignored; new ones are generated.
-	async createTaskFile(template: Task): Promise<Task> {
+	async createTask(
+		title: string,
+		projectSlug: string,
+		destination: 'queue' | 'backlog',
+	): Promise<Task> {
 		const id = generateId();
-		const filePath = `${TASKS_FOLDER}/${id}.md`;
-		const task: Task = { ...template, id, filePath };
-		await this.app.vault.create(filePath, serializeTask(task));
-		return task;
-	}
-
-	async createAndAppendTask(title: string): Promise<Task> {
-		const task = await this.createTaskFile({
-			id: '',
-			filePath: '',
+		const filePath = `${tasksFolder(projectSlug)}/${id}.md`;
+		const task: Task = {
+			id,
+			filePath,
 			title,
 			description: '',
 			completionCriteria: '',
@@ -42,9 +28,24 @@ export class TaskStore {
 			automatable: false,
 			contextType: null,
 			dependencies: [],
-			project: null,
-		});
-		await this.queueStore.append(task.id);
+			project: projectSlug,
+		};
+		await this.app.vault.create(filePath, serializeTask(task));
+		if (destination === 'queue') {
+			await this.queueFileStore.appendToQueue(projectSlug, filePath);
+		} else {
+			await this.queueFileStore.addToBacklog(projectSlug, filePath);
+		}
+		return task;
+	}
+
+	// Creates the vault file only — does NOT modify queue or backlog.
+	// Used for undo-delete: caller is responsible for re-inserting into the queue.
+	async createTaskFile(template: Task): Promise<Task> {
+		const id = generateId();
+		const filePath = `${tasksFolder(template.project)}/${id}.md`;
+		const task: Task = { ...template, id, filePath };
+		await this.app.vault.create(filePath, serializeTask(task));
 		return task;
 	}
 
@@ -64,12 +65,56 @@ export class TaskStore {
 	async deleteTask(task: Task): Promise<void> {
 		const file = this.app.vault.getAbstractFileByPath(task.filePath);
 		if (!(file instanceof TFile)) throw new Error(`Task file not found: ${task.filePath}`);
-		await this.app.vault.delete(file);
-		await this.queueStore.remove(task.id);
+		await this.app.fileManager.trashFile(file);
+		// Remove from whichever list the task was in — safe to call both
+		await this.queueFileStore.removeFromQueue(task.project, task.filePath);
+		await this.queueFileStore.removeFromBacklog(task.project, task.filePath);
 	}
 
-	async listAllTasks(): Promise<Task[]> {
-		const folder = this.app.vault.getAbstractFileByPath(TASKS_FOLDER);
+	async listAllTasks(projectSlug?: string): Promise<Task[]> {
+		if (projectSlug) {
+			return this.listTasksInFolder(tasksFolder(projectSlug));
+		}
+		const root = this.app.vault.getAbstractFileByPath(PROJECTS_FOLDER);
+		if (!(root instanceof TFolder)) return [];
+		const tasks: Task[] = [];
+		for (const child of root.children) {
+			if (child instanceof TFolder) {
+				tasks.push(...await this.listTasksInFolder(tasksFolder(child.name)));
+			}
+		}
+		return tasks;
+	}
+
+	async getQueue(projectSlug: string): Promise<Task[]> {
+		const order = await this.queueFileStore.getQueueOrder(projectSlug);
+		const tasks: Task[] = [];
+		for (const filePath of order) {
+			try {
+				const task = await this.readTask(filePath);
+				if (!task.completed) tasks.push(task);
+			} catch {
+				// file removed externally — skip stale entry
+			}
+		}
+		return tasks;
+	}
+
+	async getBacklog(projectSlug: string): Promise<Task[]> {
+		const paths = await this.queueFileStore.getBacklog(projectSlug);
+		const tasks: Task[] = [];
+		for (const filePath of paths) {
+			try {
+				tasks.push(await this.readTask(filePath));
+			} catch {
+				// file removed externally — skip stale entry
+			}
+		}
+		return tasks;
+	}
+
+	private async listTasksInFolder(folderPath: string): Promise<Task[]> {
+		const folder = this.app.vault.getAbstractFileByPath(folderPath);
 		if (!(folder instanceof TFolder)) return [];
 		const tasks: Task[] = [];
 		for (const child of folder.children) {
@@ -79,14 +124,5 @@ export class TaskStore {
 			}
 		}
 		return tasks;
-	}
-
-	async getQueue(): Promise<Task[]> {
-		const order = this.queueStore.getOrder();
-		const all = await this.listAllTasks();
-		const byId = new Map(all.map(t => [t.id, t]));
-		return order
-			.map(id => byId.get(id))
-			.filter((t): t is Task => t !== undefined && !t.completed);
 	}
 }

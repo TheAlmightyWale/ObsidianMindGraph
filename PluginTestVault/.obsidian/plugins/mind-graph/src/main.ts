@@ -4,33 +4,27 @@ import {
 	MindGraphSettings,
 	MindGraphSettingTab,
 } from './settings';
-import { MindGraphData } from './types';
-import { QueueOrderStore } from './utils/queueStore';
+import { ProjectStore } from './utils/projectStore';
+import { QueueFileStore } from './utils/queueFileStore';
 import { TaskStore } from './utils/taskStore';
 import { TaskQueueView, VIEW_TYPE_TASK_QUEUE } from './ui/TaskQueueView';
 
 export default class MindGraphPlugin extends Plugin {
 	settings!: MindGraphSettings;
+	projectStore!: ProjectStore;
+	queueFileStore!: QueueFileStore;
 	taskStore!: TaskStore;
-	queueStore!: QueueOrderStore;
 
 	async onload() {
 		await this.loadSettings();
 
-		this.queueStore = new QueueOrderStore(
-			() => this.loadData(),
-			async (data: MindGraphData) => {
-				const raw = ((await this.loadData()) as Record<string, unknown>) ?? {};
-				await this.saveData({ ...raw, queue: data.queue });
-			},
-		);
-		await this.queueStore.load();
+		this.projectStore = new ProjectStore(this.app);
+		this.queueFileStore = new QueueFileStore(this.app);
+		this.taskStore = new TaskStore(this.app, this.queueFileStore);
 
-		this.taskStore = new TaskStore(this.app, this.queueStore);
 		this.app.workspace.onLayoutReady(() => {
-			void this.taskStore.ensureFolder();
+			void this.projectStore.ensureDefaults();
 		});
-		//await this.taskStore.ensureFolder();
 
 		this.registerView(
 			VIEW_TYPE_TASK_QUEUE,
@@ -51,6 +45,9 @@ export default class MindGraphPlugin extends Plugin {
 	}
 
 	onunload() { }
+
+	// Fully implemented in Step 7 once ProjectQueueView exists
+	async activateProjectQueue(_slug: string): Promise<void> {}
 
 	private async activateView(): Promise<void> {
 		const { workspace } = this.app;

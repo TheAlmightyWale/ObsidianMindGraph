@@ -26,7 +26,7 @@ export function TaskEditForm({ task, onSave, onCancel }: TaskEditFormProps) {
 			automatable: task?.automatable ?? false,
 			contextType: task?.contextType ?? null,
 			dependencies: task?.dependencies ?? [],
-			project: task?.project ?? null,
+			project: task?.project ?? '',
 		}).finally(() => setSaving(false));
 	}
 

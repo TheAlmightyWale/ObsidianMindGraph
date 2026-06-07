@@ -1,4 +1,4 @@
-All mind graph data will be stored in a .mindgraph folder.
+All mind graph data will be stored in a mindgraph folder.
 Under this folder we will have the following folders
 - Agents
 	- Which will store agent information, contexts, skills, tools etc

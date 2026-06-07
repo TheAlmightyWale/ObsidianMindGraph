@@ -1,5 +1,6 @@
 import { parseYaml, stringifyYaml } from 'obsidian';
 import { Task } from '../types';
+import { DEFAULT_PROJECT_SLUG } from './constants';
 
 export function serializeTask(task: Task): string {
 	const fm = stringifyYaml({
@@ -41,6 +42,6 @@ export function deserializeTask(content: string, filePath: string): Task {
 		automatable: Boolean(fm['automatable']),
 		contextType: typeof fm['contextType'] === 'string' ? fm['contextType'] : null,
 		dependencies: Array.isArray(fm['dependencies']) ? (fm['dependencies'] as string[]) : [],
-		project: typeof fm['project'] === 'string' ? fm['project'] : null,
+		project: typeof fm['project'] === 'string' ? fm['project'] : DEFAULT_PROJECT_SLUG,
 	};
 }

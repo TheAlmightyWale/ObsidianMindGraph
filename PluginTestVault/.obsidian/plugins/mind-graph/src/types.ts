@@ -8,14 +8,16 @@ export interface Task {
 	automatable: boolean;
 	contextType: string | null;
 	dependencies: string[];
-	project: string | null;
+	project: string;
 }
 
-export interface QueueStore {
-	queueOrder: string[];
-	doneTaskIds: string[];
+export interface Project {
+	id: string;       // slug, matches folder name — never changes
+	name: string;     // display name, user-editable
+	description: string;
+	createdAt: string; // ISO 8601
 }
 
 export interface MindGraphData {
-	queue: QueueStore;
+	// queue ordering lives in per-project queue.md files, not here
 }
