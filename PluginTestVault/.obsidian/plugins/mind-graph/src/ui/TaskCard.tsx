@@ -9,9 +9,10 @@ interface TaskCardProps {
 	onDone: (task: Task) => void;
 	onDelete: (task: Task) => void;
 	onEdit: (task: Task) => void;
+	onDemote?: (task: Task) => void;
 }
 
-export function TaskCard({ task, onDone, onDelete, onEdit }: TaskCardProps) {
+export function TaskCard({ task, onDone, onDelete, onEdit, onDemote }: TaskCardProps) {
 	const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
 		useSortable({ id: task.id });
 
@@ -32,6 +33,14 @@ export function TaskCard({ task, onDone, onDelete, onEdit }: TaskCardProps) {
 			</div>
 			<div className="mg-task-card__title">{task.title}</div>
 			<div className="mg-task-card__actions">
+				{onDemote && (
+					<button
+						onClick={e => { e.stopPropagation(); onDemote(task); }}
+						onDoubleClick={e => e.stopPropagation()}
+						aria-label="Move to backlog"
+						className="mg-btn-demote"
+					>↓</button>
+				)}
 				<button
 					onClick={e => { e.stopPropagation(); onDone(task); }}
 					onDoubleClick={e => e.stopPropagation()}

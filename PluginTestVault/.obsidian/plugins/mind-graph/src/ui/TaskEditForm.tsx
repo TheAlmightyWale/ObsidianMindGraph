@@ -1,37 +1,69 @@
 import React, { useState } from 'react';
-import { Task } from '../types';
+import { Project, Task } from '../types';
 
 interface TaskEditFormProps {
 	task: Task | null;
-	onSave: (task: Task) => Promise<void>;
+	projects?: Project[];          // when provided with 2+ items, shows a project selector
+	defaultProjectSlug?: string;   // pre-selects a project in the dropdown
+	onSave: (task: Task, destination: 'queue' | 'backlog') => Promise<void>;
 	onCancel: () => void;
 }
 
-export function TaskEditForm({ task, onSave, onCancel }: TaskEditFormProps) {
+export function TaskEditForm({
+	task,
+	projects,
+	defaultProjectSlug,
+	onSave,
+	onCancel,
+}: TaskEditFormProps) {
+	const isCreate = task === null;
+
 	const [title, setTitle] = useState(task?.title ?? '');
 	const [description, setDescription] = useState(task?.description ?? '');
 	const [completionCriteria, setCompletionCriteria] = useState(task?.completionCriteria ?? '');
+	const [selectedProject, setSelectedProject] = useState(
+		defaultProjectSlug ?? task?.project ?? ''
+	);
+	const [destination, setDestination] = useState<'queue' | 'backlog'>('queue');
 	const [saving, setSaving] = useState(false);
+
+	const showProjectDropdown = isCreate && projects && projects.length > 1;
 
 	function handleSave() {
 		if (!title.trim() || saving) return;
 		setSaving(true);
-		void onSave({
-			id: task?.id ?? '',
-			filePath: task?.filePath ?? '',
-			title: title.trim(),
-			description,
-			completionCriteria,
-			completed: task?.completed ?? false,
-			automatable: task?.automatable ?? false,
-			contextType: task?.contextType ?? null,
-			dependencies: task?.dependencies ?? [],
-			project: task?.project ?? '',
-		}).finally(() => setSaving(false));
+		void onSave(
+			{
+				id: task?.id ?? '',
+				filePath: task?.filePath ?? '',
+				title: title.trim(),
+				description,
+				completionCriteria,
+				completed: task?.completed ?? false,
+				automatable: task?.automatable ?? false,
+				contextType: task?.contextType ?? null,
+				dependencies: task?.dependencies ?? [],
+				project: selectedProject || task?.project || '',
+			},
+			destination,
+		).finally(() => setSaving(false));
 	}
 
 	return (
 		<div className="mg-task-edit-form">
+			{showProjectDropdown && (
+				<div className="mg-field">
+					<label>Project</label>
+					<select
+						value={selectedProject}
+						onChange={e => setSelectedProject(e.target.value)}
+					>
+						{projects!.map(p => (
+							<option key={p.id} value={p.id}>{p.name}</option>
+						))}
+					</select>
+				</div>
+			)}
 			<div className="mg-field">
 				<label>Title</label>
 				<input
@@ -61,6 +93,31 @@ export function TaskEditForm({ task, onSave, onCancel }: TaskEditFormProps) {
 					rows={3}
 				/>
 			</div>
+			{isCreate && (
+				<div className="mg-field">
+					<label>Add to</label>
+					<div className="mg-radio-group">
+						<label>
+							<input
+								type="radio"
+								value="queue"
+								checked={destination === 'queue'}
+								onChange={() => setDestination('queue')}
+							/>
+							{' '}Queue
+						</label>
+						<label>
+							<input
+								type="radio"
+								value="backlog"
+								checked={destination === 'backlog'}
+								onChange={() => setDestination('backlog')}
+							/>
+							{' '}Backlog
+						</label>
+					</div>
+				</div>
+			)}
 			<div className="mg-field--disabled">
 				<label>
 					<input type="checkbox" disabled />

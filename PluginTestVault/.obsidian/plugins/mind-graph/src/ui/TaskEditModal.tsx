@@ -1,7 +1,7 @@
 import { App, Modal } from 'obsidian';
 import React from 'react';
 import { createRoot, Root } from 'react-dom/client';
-import { Task } from '../types';
+import { Project, Task } from '../types';
 import { TaskEditForm } from './TaskEditForm';
 
 export class TaskEditModal extends Modal {
@@ -10,7 +10,9 @@ export class TaskEditModal extends Modal {
 	constructor(
 		app: App,
 		private task: Task | null,
-		private onSave: (task: Task) => Promise<void>,
+		private onSave: (task: Task, destination: 'queue' | 'backlog') => Promise<void>,
+		private projects?: Project[],
+		private defaultProjectSlug?: string,
 	) {
 		super(app);
 	}
@@ -21,8 +23,10 @@ export class TaskEditModal extends Modal {
 		this.root.render(
 			<TaskEditForm
 				task={this.task}
-				onSave={async (t) => {
-					await this.onSave(t);
+				projects={this.projects}
+				defaultProjectSlug={this.defaultProjectSlug}
+				onSave={async (t, destination) => {
+					await this.onSave(t, destination);
 					this.close();
 				}}
 				onCancel={() => this.close()}

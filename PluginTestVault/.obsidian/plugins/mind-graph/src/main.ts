@@ -7,7 +7,8 @@ import {
 import { ProjectStore } from './utils/projectStore';
 import { QueueFileStore } from './utils/queueFileStore';
 import { TaskStore } from './utils/taskStore';
-import { TaskQueueView, VIEW_TYPE_TASK_QUEUE } from './ui/TaskQueueView';
+import { ProjectsOverviewView, VIEW_TYPE_PROJECTS_OVERVIEW } from './ui/ProjectsOverviewView';
+import { ProjectQueueView, VIEW_TYPE_PROJECT_QUEUE } from './ui/ProjectQueueView';
 
 export default class MindGraphPlugin extends Plugin {
 	settings!: MindGraphSettings;
@@ -27,18 +28,22 @@ export default class MindGraphPlugin extends Plugin {
 		});
 
 		this.registerView(
-			VIEW_TYPE_TASK_QUEUE,
-			(leaf) => new TaskQueueView(leaf, this),
+			VIEW_TYPE_PROJECTS_OVERVIEW,
+			(leaf) => new ProjectsOverviewView(leaf, this),
+		);
+		this.registerView(
+			VIEW_TYPE_PROJECT_QUEUE,
+			(leaf) => new ProjectQueueView(leaf, this),
 		);
 
 		this.addCommand({
-			id: 'open-task-queue',
-			name: 'Open task queue',
-			callback: () => { void this.activateView(); },
+			id: 'open-projects-overview',
+			name: 'Open projects overview',
+			callback: () => { void this.activateProjectsOverview(); },
 		});
 
-		this.addRibbonIcon('list-checks', 'Task queue', () => {
-			void this.activateView();
+		this.addRibbonIcon('layout-grid', 'Projects overview', () => {
+			void this.activateProjectsOverview();
 		});
 
 		this.addSettingTab(new MindGraphSettingTab(this.app, this));
@@ -46,18 +51,28 @@ export default class MindGraphPlugin extends Plugin {
 
 	onunload() { }
 
-	// Fully implemented in Step 7 once ProjectQueueView exists
-	async activateProjectQueue(_slug: string): Promise<void> {}
-
-	private async activateView(): Promise<void> {
+	async activateProjectsOverview(): Promise<void> {
 		const { workspace } = this.app;
-		const existing = workspace.getLeavesOfType(VIEW_TYPE_TASK_QUEUE)[0];
+		const existing = workspace.getLeavesOfType(VIEW_TYPE_PROJECTS_OVERVIEW)[0];
 		if (existing) {
 			await workspace.revealLeaf(existing);
 			return;
 		}
 		const leaf = workspace.getLeaf('tab');
-		await leaf.setViewState({ type: VIEW_TYPE_TASK_QUEUE, active: true });
+		await leaf.setViewState({ type: VIEW_TYPE_PROJECTS_OVERVIEW, active: true });
+		await workspace.revealLeaf(leaf);
+	}
+
+	async activateProjectQueue(slug: string): Promise<void> {
+		const { workspace } = this.app;
+		const existing = workspace.getLeavesOfType(VIEW_TYPE_PROJECT_QUEUE)
+			.find(l => (l.view as ProjectQueueView).projectSlug === slug);
+		if (existing) {
+			await workspace.revealLeaf(existing);
+			return;
+		}
+		const leaf = workspace.getLeaf('tab');
+		await leaf.setViewState({ type: VIEW_TYPE_PROJECT_QUEUE, active: true, state: { slug } });
 		await workspace.revealLeaf(leaf);
 	}
 

@@ -28,6 +28,7 @@ interface TaskQueuePanelProps {
 	projectSlug?: string;
 	projectName?: string;        // display name shown in the header link (overview mode)
 	onProjectNameClick?: () => void; // when provided, name becomes a clickable link
+	showDemoteButton?: boolean;
 }
 
 export function TaskQueuePanel({
@@ -37,6 +38,7 @@ export function TaskQueuePanel({
 	projectSlug = DEFAULT_PROJECT_SLUG,
 	projectName,
 	onProjectNameClick,
+	showDemoteButton,
 }: TaskQueuePanelProps) {
 	const [tasks, setTasks] = useState<Task[]>([]);
 	const [loading, setLoading] = useState(true);
@@ -48,11 +50,10 @@ export function TaskQueuePanel({
 			setTasks(queue);
 			setLoading(false);
 		});
+		return queueFileStore.subscribeQueue(projectSlug, () => {
+			void taskStore.getQueue(projectSlug).then(setTasks);
+		});
 	}, [projectSlug]);
-
-	function refreshQueue() {
-		void taskStore.getQueue(projectSlug).then(setTasks);
-	}
 
 	function handleDragEnd(event: DragEndEvent) {
 		const { active, over } = event;
@@ -65,8 +66,9 @@ export function TaskQueuePanel({
 	}
 
 	function openAddModal() {
-		new TaskEditModal(app, null, async (t) => {
-			const created = await taskStore.createTask(t.title, projectSlug, 'queue');
+		new TaskEditModal(app, null, async (t, destination) => {
+			console.log('TaskQueuePanel: saving new task', t, 'to', destination);
+			const created = await taskStore.createTask(t.title, projectSlug, destination);
 			if (t.description || t.completionCriteria) {
 				await taskStore.updateTask({
 					...created,
@@ -74,14 +76,16 @@ export function TaskQueuePanel({
 					completionCriteria: t.completionCriteria,
 				});
 			}
-			refreshQueue();
+			// queue subscription fires automatically via appendToQueue → notifyQueue
 		}).open();
 	}
 
 	function openEditModal(task: Task) {
 		new TaskEditModal(app, task, async (updated) => {
 			await taskStore.updateTask(updated);
-			refreshQueue();
+			// updateTask writes the task file, not the queue file, so subscription won't fire —
+			// update local state directly instead
+			setTasks(prev => prev.map(t => t.id === updated.id ? updated : t));
 		}).open();
 	}
 
@@ -92,7 +96,19 @@ export function TaskQueuePanel({
 		showUndoNotice(`"${task.title}" marked as done.`, async () => {
 			await taskStore.updateTask({ ...task, completed: false });
 			await queueFileStore.appendToQueue(projectSlug, task.filePath);
-			refreshQueue();
+			// subscription fires via appendToQueue → notifyQueue
+		});
+	}
+
+	async function handleDemote(task: Task) {
+		const originalIndex = tasks.findIndex(t => t.id === task.id);
+		await queueFileStore.demoteToBacklog(projectSlug, task.filePath);
+		setTasks(prev => prev.filter(t => t.id !== task.id));
+		// subscriptions fire via demoteToBacklog → notifyQueue + notifyBacklog
+		showUndoNotice(`"${task.title}" moved to backlog.`, async () => {
+			await queueFileStore.removeFromBacklog(projectSlug, task.filePath);
+			await queueFileStore.insertInQueue(projectSlug, task.filePath, originalIndex);
+			// subscriptions fire via removeFromBacklog + insertInQueue → notifyBacklog + notifyQueue
 		});
 	}
 
@@ -104,7 +120,7 @@ export function TaskQueuePanel({
 		showUndoNotice(`"${snapshot.title}" deleted.`, async () => {
 			const restored = await taskStore.createTaskFile(snapshot);
 			await queueFileStore.insertInQueue(projectSlug, restored.filePath, originalIndex);
-			refreshQueue();
+			// subscription fires via insertInQueue → notifyQueue
 		});
 	}
 
@@ -138,6 +154,7 @@ export function TaskQueuePanel({
 									key={task.id}
 									task={task}
 									index={i}
+									onDemote={showDemoteButton ? t => void handleDemote(t) : undefined}
 									onDone={t => void handleDone(t)}
 									onDelete={t => void handleDelete(t)}
 									onEdit={openEditModal}
