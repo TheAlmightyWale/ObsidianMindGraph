@@ -33,24 +33,24 @@ export class QueueFileStore {
 	}
 
 	async getQueueOrder(projectSlug: string): Promise<string[]> {
-		console.log(`Getting queue order for project ${projectSlug}`);
+		//console.log(`Getting queue order for project ${projectSlug}`);
 		return this.readLinks(queueFilePath(projectSlug));
 	}
 
 	async setQueueOrder(projectSlug: string, filePaths: string[]): Promise<void> {
-		console.log(`Setting queue order for project ${projectSlug}`);
+		//console.log(`Setting queue order for project ${projectSlug}`);
 		await this.writeLinks(queueFilePath(projectSlug), projectSlug, 'queue', filePaths);
 		this.notifyQueue(projectSlug);
 	}
 
 	async appendToQueue(projectSlug: string, filePath: string): Promise<void> {
-		console.log(`Appending ${filePath} to queue for project ${projectSlug}`);
+		//console.log(`Appending ${filePath} to queue for project ${projectSlug}`);
 		const order = await this.getQueueOrder(projectSlug);
 		await this.setQueueOrder(projectSlug, [...order, filePath]);
 	}
 
 	async removeFromQueue(projectSlug: string, filePath: string): Promise<void> {
-		console.log(`Removing ${filePath} from queue for project ${projectSlug}`);
+		//console.log(`Removing ${filePath} from queue for project ${projectSlug}`);
 		const order = await this.getQueueOrder(projectSlug);
 		await this.setQueueOrder(projectSlug, order.filter(p => p !== filePath));
 	}
@@ -70,12 +70,12 @@ export class QueueFileStore {
 	}
 
 	async getBacklog(projectSlug: string): Promise<string[]> {
-		console.log(`Getting backlog for project ${projectSlug}`);
+		//console.log(`Getting backlog for project ${projectSlug}`);
 		return this.readLinks(backlogFilePath(projectSlug));
 	}
 
 	async addToBacklog(projectSlug: string, filePath: string): Promise<void> {
-		console.log(`Adding ${filePath} to backlog for project ${projectSlug}`);
+		//console.log(`Adding ${filePath} to backlog for project ${projectSlug}`);
 		const backlog = await this.getBacklog(projectSlug);
 		if (backlog.includes(filePath)) return;
 		await this.writeLinks(backlogFilePath(projectSlug), projectSlug, 'backlog', [...backlog, filePath]);
@@ -83,20 +83,20 @@ export class QueueFileStore {
 	}
 
 	async removeFromBacklog(projectSlug: string, filePath: string): Promise<void> {
-		console.log(`Removing ${filePath} from backlog for project ${projectSlug}`);
+		//console.log(`Removing ${filePath} from backlog for project ${projectSlug}`);
 		const backlog = await this.getBacklog(projectSlug);
 		await this.writeLinks(backlogFilePath(projectSlug), projectSlug, 'backlog', backlog.filter(p => p !== filePath));
 		this.notifyBacklog(projectSlug);
 	}
 
 	async promoteToQueue(projectSlug: string, filePath: string): Promise<void> {
-		console.log(`Promoting ${filePath} to queue for project ${projectSlug}`);
+		//console.log(`Promoting ${filePath} to queue for project ${projectSlug}`);
 		await this.removeFromBacklog(projectSlug, filePath);
 		await this.appendToQueue(projectSlug, filePath);
 	}
 
 	async demoteToBacklog(projectSlug: string, filePath: string): Promise<void> {
-		console.log(`Demoting ${filePath} to backlog for project ${projectSlug}`);
+		//console.log(`Demoting ${filePath} to backlog for project ${projectSlug}`);
 		await this.removeFromQueue(projectSlug, filePath);
 		await this.addToBacklog(projectSlug, filePath);
 	}
@@ -109,7 +109,7 @@ export class QueueFileStore {
 			.split('\n')
 			.map(line => LINK_REGEX.exec(line)?.[1])
 			.filter((p): p is string => p !== undefined);
-		console.log(`Read links from ${filePath}:`, links);
+		//console.log(`Read links from ${filePath}:`, links);
 		return links;
 	}
 
@@ -119,14 +119,12 @@ export class QueueFileStore {
 		type: 'queue' | 'backlog',
 		paths: string[],
 	): Promise<void> {
-		console.log(`Writing links to ${filePath}:`, paths);
+		//console.log(`Writing links to ${filePath}:`, paths);
 		const file = this.app.vault.getAbstractFileByPath(filePath);
 		if (!(file instanceof TFile)) throw new Error(`Queue file not found: ${filePath}`);
 		const fm = stringifyYaml({ project: projectSlug, type });
 		const body = paths.map(p => `- [[${p}]]`).join('\n');
 		const content = `---\n${fm}---\n${body ? '\n' + body + '\n' : ''}`;
 		await this.app.vault.modify(file, content);
-		console.log(`Finished writing links to ${filePath}. Reading:`);
-		await this.readLinks(filePath); // sanity check to ensure file was written correctly
 	}
 }

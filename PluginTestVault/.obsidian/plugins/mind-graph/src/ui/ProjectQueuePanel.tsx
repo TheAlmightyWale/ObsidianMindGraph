@@ -70,7 +70,6 @@ export function ProjectQueuePanel({
 	}
 
 	function openEditTaskModal(task: Task) {
-		console.log('ProjectQueuePanel: Opening edit modal for task', task);
 		new TaskEditModal(app, task, async (updated) => {
 			await taskStore.updateTask(updated);
 			// updateTask writes the task file, not the backlog file, so subscription won't fire —
