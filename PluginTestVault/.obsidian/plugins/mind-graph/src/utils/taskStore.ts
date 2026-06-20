@@ -71,6 +71,22 @@ export class TaskStore {
 		await this.queueFileStore.removeFromBacklog(task.project, task.filePath);
 	}
 
+	async addDependency(targetTask: Task, sourceId: string): Promise<void> {
+		if (targetTask.dependencies.includes(sourceId)) return;
+		await this.updateTask({
+			...targetTask,
+			dependencies: [...targetTask.dependencies, sourceId],
+		});
+	}
+
+	async removeDependency(targetTask: Task, sourceId: string): Promise<void> {
+		if (!targetTask.dependencies.includes(sourceId)) return;
+		await this.updateTask({
+			...targetTask,
+			dependencies: targetTask.dependencies.filter(id => id !== sourceId),
+		});
+	}
+
 	async listAllTasks(projectSlug?: string): Promise<Task[]> {
 		if (projectSlug) {
 			return this.listTasksInFolder(tasksFolder(projectSlug));

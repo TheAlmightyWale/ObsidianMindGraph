@@ -78,7 +78,21 @@
             }
           },
           {
-            "id": "0162d1a688234a91",
+            "id": "d632522417164875",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Task management implementation plan.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Task management implementation plan"
+            }
+          },
+          {
+            "id": "5733b4c542ccac34",
             "type": "leaf",
             "state": {
               "type": "mind-graph-projects-overview",
@@ -88,7 +102,7 @@
             }
           },
           {
-            "id": "047e544eccc1618c",
+            "id": "499afc1749d76b33",
             "type": "leaf",
             "state": {
               "type": "mind-graph-project-queue",
@@ -100,7 +114,7 @@
             }
           }
         ],
-        "currentTab": 6
+        "currentTab": 7
       }
     ],
     "direction": "vertical"
@@ -132,7 +146,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "",
+                "query": "TFB",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -153,7 +167,8 @@
               "title": "Bookmarks"
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "horizontal",
@@ -260,8 +275,14 @@
       "bases:Create new base": false
     }
   },
-  "active": "0162d1a688234a91",
+  "active": "499afc1749d76b33",
   "lastOpenFiles": [
+    "mind-graph/Projects/default/Tasks/5b1f1ec5-0290-4928-ac6f-e8e2d16ef232.md",
+    "mind-graph/Projects/default/Tasks/881e68fa-33bf-437c-abb9-2c1b3032acbe.md",
+    "mind-graph/Projects/default/Tasks/f621842c-b2ba-43fc-a2f3-73c5f7724b1f.md",
+    "mind-graph/Projects/default/Tasks/d7c8941f-23af-494e-952e-9bce6f44d721.md",
+    "mind-graph/Projects/default/Tasks/7a253df1-a92b-4341-8730-0c7947dd3137.md",
+    "mind-graph/Projects/default/Tasks/8a8ef7ce-e4bd-45d5-b212-c474aae0efdf.md",
     "mind-graph/Projects/default/Tasks/d72c2455-769e-4b41-8dc1-b44f66cbf835.md",
     "mind-graph/Projects/default/Tasks/cbd2169d-e76c-408b-b77a-f5f5345bfc84.md",
     "mind-graph/Projects/default/Tasks/ffce6b29-d0b2-4c5a-930c-8b613d97433c.md",
@@ -282,15 +303,9 @@
     "mind-graph/Projects/default/Tasks/403aa65a-cdb5-4fdf-8ff5-aa300d849031.md",
     "Task management implementation plan.md",
     "mind-graph/Projects/default/Tasks/51cbd8c5-f1ac-4d24-b87d-75074a3fb1e2.md",
-    "Task Requirements.md",
-    "mind-graph/Projects/default/Tasks/e306169e-1998-45e6-9214-7ccc640db687.md",
-    "mind-graph/Projects/default/Tasks/cba3e4a3-1de3-4f43-aeb8-711110f4674d.md",
-    "mind-graph/Projects/default/Tasks/11ea7484-8eaf-4ae1-8785-a0ebeee9c5f5.md",
-    "mind-graph/Projects/default/Tasks/e8ca1380-54d4-40e1-ad84-b4b5de267154.md",
     "mind-graph/Projects/default/Tasks",
     "mind-graph/Projects/default",
     "mind-graph/Projects",
-    "mind-graph/Tasks/db1abe58-f72d-468d-a61a-c513a0bd0f21.md",
     "mind-graph/Tasks",
     "mind-graph",
     "Untitled 1.base",

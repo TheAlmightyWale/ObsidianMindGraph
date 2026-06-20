@@ -21,3 +21,6 @@ export interface Project {
 export interface MindGraphData {
 	// queue ordering lives in per-project queue.md files, not here
 }
+
+/** Reverse dependency map: taskId → IDs of tasks that depend on it */
+export type DependentMap = Map<string, string[]>;

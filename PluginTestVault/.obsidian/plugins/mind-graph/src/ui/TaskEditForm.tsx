@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Project, Task } from '../types';
+import { type Project, type Task, type DependentMap } from '../types';
 
 interface TaskEditFormProps {
 	task: Task | null;
@@ -7,6 +7,8 @@ interface TaskEditFormProps {
 	defaultProjectSlug?: string;   // pre-selects a project in the dropdown
 	onSave: (task: Task, destination: 'queue' | 'backlog') => Promise<void>;
 	onCancel: () => void;
+	allTasks?: Task[];
+	dependentMap?: DependentMap;
 }
 
 export function TaskEditForm({
@@ -15,6 +17,8 @@ export function TaskEditForm({
 	defaultProjectSlug,
 	onSave,
 	onCancel,
+	allTasks,
+	dependentMap,
 }: TaskEditFormProps) {
 	const isCreate = task === null;
 
@@ -124,6 +128,30 @@ export function TaskEditForm({
 					{' '}Can be automated (coming in a future phase)
 				</label>
 			</div>
+			{allTasks && task && (task.dependencies.length > 0 || (dependentMap?.get(task.id)?.length ?? 0) > 0) && (
+				<div className="mg-dep-section">
+					{task.dependencies.length > 0 && (
+						<>
+							<p className="mg-dep-label">Dependencies (edit in Graph view)</p>
+							{task.dependencies.map(id => (
+								<div key={id} className="mg-dep-row mg-dep-prereq">
+									← {allTasks.find(t => t.id === id)?.title ?? id}
+								</div>
+							))}
+						</>
+					)}
+					{(dependentMap?.get(task.id)?.length ?? 0) > 0 && (
+						<>
+							<p className="mg-dep-label">Depended on by</p>
+							{dependentMap!.get(task.id)!.map(id => (
+								<div key={id} className="mg-dep-row mg-dep-dependent">
+									→ {allTasks.find(t => t.id === id)?.title ?? id}
+								</div>
+							))}
+						</>
+					)}
+				</div>
+			)}
 			<div className="mg-form-actions">
 				<button onClick={onCancel}>Cancel</button>
 				<button

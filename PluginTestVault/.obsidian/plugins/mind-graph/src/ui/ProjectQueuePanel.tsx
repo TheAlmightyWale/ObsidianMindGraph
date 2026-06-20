@@ -6,6 +6,7 @@ import { QueueFileStore } from '../utils/queueFileStore';
 import { TaskStore } from '../utils/taskStore';
 import { showUndoNotice } from '../utils/undoNotice';
 import { BacklogSection } from './BacklogSection';
+import { DependencyGraphCanvas } from './DependencyGraphCanvas';
 import { ProjectEditModal } from './ProjectEditModal';
 import { TaskEditModal } from './TaskEditModal';
 import { TaskQueuePanel } from './TaskQueuePanel';
@@ -29,20 +30,32 @@ export function ProjectQueuePanel({
 }: ProjectQueuePanelProps) {
 	const [project, setProject] = useState<Project | null>(null);
 	const [backlogTasks, setBacklogTasks] = useState<Task[]>([]);
+	const [queuedTasks, setQueuedTasks] = useState<Task[]>([]);
 	const [loading, setLoading] = useState(true);
+	const [viewMode, setViewMode] = useState<'cards' | 'graph'>('cards');
 
 	useEffect(() => {
 		void Promise.all([
 			projectStore.readProject(projectSlug),
 			taskStore.getBacklog(projectSlug),
-		]).then(([p, backlog]) => {
+			taskStore.getQueue(projectSlug),
+		]).then(([p, backlog, queue]) => {
 			setProject(p);
 			setBacklogTasks(backlog);
+			setQueuedTasks(queue);
 			setLoading(false);
 		});
-		return queueFileStore.subscribeBacklog(projectSlug, () => {
+
+		const unsubQueue = queueFileStore.subscribeQueue(projectSlug, () => {
+			void taskStore.getQueue(projectSlug).then(setQueuedTasks);
+		});
+		const unsubBacklog = queueFileStore.subscribeBacklog(projectSlug, () => {
 			void taskStore.getBacklog(projectSlug).then(setBacklogTasks);
 		});
+		return () => {
+			unsubQueue();
+			unsubBacklog();
+		};
 	}, [projectSlug]);
 
 	function openEditProjectModal() {
@@ -66,15 +79,13 @@ export function ProjectQueuePanel({
 	async function handlePromote(task: Task) {
 		await queueFileStore.promoteToQueue(projectSlug, task.filePath);
 		setBacklogTasks(prev => prev.filter(t => t.id !== task.id));
-		// queue subscription fires via promoteToQueue → appendToQueue → notifyQueue
 	}
 
 	function openEditTaskModal(task: Task) {
 		new TaskEditModal(app, task, async (updated) => {
 			await taskStore.updateTask(updated);
-			// updateTask writes the task file, not the backlog file, so subscription won't fire —
-			// update local state directly instead
 			setBacklogTasks(prev => prev.map(t => t.id === updated.id ? updated : t));
+			setQueuedTasks(prev => prev.map(t => t.id === updated.id ? updated : t));
 		}).open();
 	}
 
@@ -85,7 +96,24 @@ export function ProjectQueuePanel({
 		showUndoNotice(`"${snapshot.title}" deleted.`, async () => {
 			const restored = await taskStore.createTaskFile(snapshot);
 			await queueFileStore.addToBacklog(projectSlug, restored.filePath);
-			// subscription fires via addToBacklog → notifyBacklog
+		});
+	}
+
+	async function handleGraphDone(task: Task) {
+		await taskStore.updateTask({ ...task, completed: true });
+		await queueFileStore.removeFromQueue(projectSlug, task.filePath);
+		showUndoNotice(`"${task.title}" marked as done.`, async () => {
+			await taskStore.updateTask({ ...task, completed: false });
+			await queueFileStore.appendToQueue(projectSlug, task.filePath);
+		});
+	}
+
+	async function handleGraphDelete(task: Task) {
+		const snapshot = { ...task };
+		await taskStore.deleteTask(task);
+		showUndoNotice(`"${snapshot.title}" deleted.`, async () => {
+			const restored = await taskStore.createTaskFile(snapshot);
+			await queueFileStore.appendToQueue(projectSlug, restored.filePath);
 		});
 	}
 
@@ -98,23 +126,54 @@ export function ProjectQueuePanel({
 			<div className="mg-project-queue__header">
 				<h3 className="mg-project-queue__name">{project?.name ?? projectSlug}</h3>
 				<div className="mg-project-queue__actions">
+					<button
+						className={`mg-view-toggle${viewMode === 'cards' ? ' mod-active' : ''}`}
+						onClick={() => setViewMode('cards')}
+						title="Card view"
+					>
+						≡ Cards
+					</button>
+					<button
+						className={`mg-view-toggle${viewMode === 'graph' ? ' mod-active' : ''}`}
+						onClick={() => setViewMode('graph')}
+						title="Graph view"
+					>
+						⬡ Graph
+					</button>
 					<button onClick={openEditProjectModal} title="Edit project">✎</button>
 					<button onClick={() => { void handleDeleteProject(); }} title="Delete project">✕</button>
 				</div>
 			</div>
-			<TaskQueuePanel
-				app={app}
-				taskStore={taskStore}
-				queueFileStore={queueFileStore}
-				projectSlug={projectSlug}
-				showDemoteButton={true}
-			/>
-			<BacklogSection
-				tasks={backlogTasks}
-				onPromote={task => { void handlePromote(task); }}
-				onEdit={openEditTaskModal}
-				onDelete={task => { void handleDeleteBacklogTask(task); }}
-			/>
+
+			{viewMode === 'graph' ? (
+				<DependencyGraphCanvas
+					taskStore={taskStore}
+					queueFileStore={queueFileStore}
+					projectSlug={projectSlug}
+					queuedTasks={queuedTasks}
+					backlogTasks={backlogTasks}
+					onQueueChange={setQueuedTasks}
+					onEdit={openEditTaskModal}
+					onDone={task => { void handleGraphDone(task); }}
+					onDelete={task => { void handleGraphDelete(task); }}
+				/>
+			) : (
+				<>
+					<TaskQueuePanel
+						app={app}
+						taskStore={taskStore}
+						queueFileStore={queueFileStore}
+						projectSlug={projectSlug}
+						showDemoteButton={true}
+					/>
+					<BacklogSection
+						tasks={backlogTasks}
+						onPromote={task => { void handlePromote(task); }}
+						onEdit={openEditTaskModal}
+						onDelete={task => { void handleDeleteBacklogTask(task); }}
+					/>
+				</>
+			)}
 		</div>
 	);
 }
