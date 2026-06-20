@@ -25,6 +25,12 @@ export function GraphNode({ data }: NodeProps<GraphNodeType>) {
 
 			<div className="mg-task-card__handle">#{queuePosition}</div>
 			<div className="mg-task-card__title">{task.title}</div>
+			{task.description && (
+				<div className="mg-task-card__desc">
+					{task.description.replace(/\s+/g, ' ').slice(0, 80)}
+					{task.description.length > 80 ? '…' : ''}
+				</div>
+			)}
 
 			{task.dependencies.length > 0 && (
 				<div className="mg-dep-chips">

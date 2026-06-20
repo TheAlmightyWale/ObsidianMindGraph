@@ -92,7 +92,7 @@
             }
           },
           {
-            "id": "5733b4c542ccac34",
+            "id": "5890a3250694b6a2",
             "type": "leaf",
             "state": {
               "type": "mind-graph-projects-overview",
@@ -102,7 +102,7 @@
             }
           },
           {
-            "id": "499afc1749d76b33",
+            "id": "16b07fd1935dae48",
             "type": "leaf",
             "state": {
               "type": "mind-graph-project-queue",
@@ -275,7 +275,7 @@
       "bases:Create new base": false
     }
   },
-  "active": "499afc1749d76b33",
+  "active": "16b07fd1935dae48",
   "lastOpenFiles": [
     "mind-graph/Projects/default/Tasks/5b1f1ec5-0290-4928-ac6f-e8e2d16ef232.md",
     "mind-graph/Projects/default/Tasks/881e68fa-33bf-437c-abb9-2c1b3032acbe.md",

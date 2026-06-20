@@ -44,14 +44,22 @@ function BacklogItem({ task, onEdit }: BacklogItemProps) {
 			{...listeners}
 		>
 			<span className="mg-backlog-pill">{task.title}</span>
-			<button
-				className="mg-graph-backlog__edit"
-				onPointerDown={e => e.stopPropagation()}
-				onClick={e => { e.stopPropagation(); onEdit(task); }}
-				aria-label="Edit task"
-			>
-				✎
-			</button>
+			{task.description && (
+				<span className="mg-graph-backlog__item-desc">
+					{task.description.replace(/\s+/g, ' ').slice(0, 80)}
+					{task.description.length > 80 ? '…' : ''}
+				</span>
+			)}
+			<div className="mg-graph-backlog__item-footer">
+				<button
+					className="mg-graph-backlog__edit"
+					onPointerDown={e => e.stopPropagation()}
+					onClick={e => { e.stopPropagation(); onEdit(task); }}
+					aria-label="Edit task"
+				>
+					✎
+				</button>
+			</div>
 		</div>
 	);
 }

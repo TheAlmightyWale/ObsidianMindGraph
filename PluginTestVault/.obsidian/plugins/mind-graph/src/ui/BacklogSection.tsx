@@ -18,7 +18,15 @@ export function BacklogSection({ tasks, onPromote, onEdit, onDelete }: BacklogSe
 				<div className="mg-backlog__list">
 					{tasks.map(task => (
 						<div key={task.id} className="mg-backlog__row">
-							<span className="mg-backlog__task-title">{task.title}</span>
+							<div className="mg-backlog__task-info">
+								<span className="mg-backlog__task-title">{task.title}</span>
+								{task.description && (
+									<span className="mg-backlog__task-desc">
+										{task.description.replace(/\s+/g, ' ').slice(0, 80)}
+										{task.description.length > 80 ? '…' : ''}
+									</span>
+								)}
+							</div>
 							<div className="mg-backlog__actions">
 								<button onClick={() => onPromote(task)} title="Add to queue">
 									→ Queue

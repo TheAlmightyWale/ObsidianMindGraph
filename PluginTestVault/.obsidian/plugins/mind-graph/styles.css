@@ -745,6 +745,7 @@ If your plugin does not need CSS, delete this file.
 	cursor: pointer;
 	user-select: none;
 	box-sizing: border-box;
+	overflow: hidden;
 	transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
@@ -786,15 +787,19 @@ If your plugin does not need CSS, delete this file.
 }
 
 .mg-task-card__title {
-	flex: 1;
-	padding: 10px 12px;
+	padding: 10px 12px 4px;
 	font-size: var(--font-ui-small);
 	line-height: 1.4;
-	overflow: hidden;
-	display: -webkit-box;
-	-webkit-line-clamp: 4;
-	-webkit-box-orient: vertical;
 	word-break: break-word;
+}
+
+.mg-task-card__desc {
+	padding: 0 12px 8px;
+	font-size: var(--font-ui-smaller);
+	color: var(--text-faint);
+	line-height: 1.4;
+	word-break: break-word;
+	overflow-wrap: break-word;
 }
 
 .mg-task-card__actions {
@@ -953,18 +958,35 @@ If your plugin does not need CSS, delete this file.
 	background: var(--background-secondary);
 	padding: 6px 10px;
 	transition: border-color 0.12s ease;
+	max-width: 480px;
 }
 
 .mg-backlog__row:hover {
 	border-color: var(--interactive-accent);
 }
 
-.mg-backlog__task-title {
+.mg-backlog__task-info {
+	display: flex;
+	align-items: baseline;
+	gap: 8px;
 	flex: 1;
+	min-width: 0;
+	flex-wrap: wrap;
+}
+
+.mg-backlog__task-title {
 	font-size: var(--font-ui-small);
-	overflow: hidden;
 	white-space: nowrap;
-	text-overflow: ellipsis;
+	flex-shrink: 0;
+}
+
+
+.mg-backlog__task-desc {
+	font-size: var(--font-ui-smaller);
+	color: var(--text-faint);
+	overflow-wrap: break-word;
+	word-break: break-word;
+	min-width: 0;
 }
 
 .mg-backlog__actions {
@@ -1049,14 +1071,28 @@ If your plugin does not need CSS, delete this file.
 
 .mg-graph-backlog__item {
 	display: flex;
-	align-items: center;
+	flex-direction: column;
 	gap: 4px;
 	border: 1px solid var(--background-modifier-border);
 	border-radius: var(--radius-s);
 	background: var(--background-secondary);
 	padding: 6px 8px;
 	cursor: grab;
+	overflow: hidden;
 	transition: border-color 0.12s ease, box-shadow 0.12s ease;
+}
+
+.mg-graph-backlog__item-footer {
+	display: flex;
+	justify-content: flex-end;
+}
+
+.mg-graph-backlog__item-desc {
+	font-size: var(--font-ui-smaller);
+	color: var(--text-faint);
+	line-height: 1.3;
+	word-break: break-word;
+	overflow-wrap: break-word;
 }
 
 .mg-graph-backlog__item:hover {
@@ -1065,13 +1101,8 @@ If your plugin does not need CSS, delete this file.
 }
 
 .mg-backlog-pill {
-	flex: 1;
 	font-size: var(--font-ui-small);
 	line-height: 1.3;
-	overflow: hidden;
-	display: -webkit-box;
-	-webkit-line-clamp: 2;
-	-webkit-box-orient: vertical;
 	word-break: break-word;
 }
 
