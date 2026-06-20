@@ -8,6 +8,7 @@ import {
 	type DragEndEvent,
 } from '@dnd-kit/core';
 import { type Task } from '../../types';
+import { truncateDescription } from '../../utils/descriptionPreview';
 
 interface GraphBacklogSidebarProps {
 	tasks: Task[];
@@ -45,10 +46,7 @@ function BacklogItem({ task, onEdit }: BacklogItemProps) {
 		>
 			<span className="mg-backlog-pill">{task.title}</span>
 			{task.description && (
-				<span className="mg-graph-backlog__item-desc">
-					{task.description.replace(/\s+/g, ' ').slice(0, 80)}
-					{task.description.length > 80 ? '…' : ''}
-				</span>
+				<span className="mg-graph-backlog__item-desc">{truncateDescription(task.description)}</span>
 			)}
 			<div className="mg-graph-backlog__item-footer">
 				<button

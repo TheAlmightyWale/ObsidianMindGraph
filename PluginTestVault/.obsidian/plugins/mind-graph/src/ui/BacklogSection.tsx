@@ -1,5 +1,6 @@
 import React from 'react';
 import { Task } from '../types';
+import { truncateDescription } from '../utils/descriptionPreview';
 
 interface BacklogSectionProps {
 	tasks: Task[];
@@ -21,10 +22,7 @@ export function BacklogSection({ tasks, onPromote, onEdit, onDelete }: BacklogSe
 							<div className="mg-backlog__task-info">
 								<span className="mg-backlog__task-title">{task.title}</span>
 								{task.description && (
-									<span className="mg-backlog__task-desc">
-										{task.description.replace(/\s+/g, ' ').slice(0, 80)}
-										{task.description.length > 80 ? '…' : ''}
-									</span>
+									<span className="mg-backlog__task-desc">{truncateDescription(task.description)}</span>
 								)}
 							</div>
 							<div className="mg-backlog__actions">
